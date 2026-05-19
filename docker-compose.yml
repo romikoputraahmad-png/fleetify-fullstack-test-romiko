@@ -1,0 +1,35 @@
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: fleetify_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fleetify_db
+      MYSQL_USER: fleetify_user
+      MYSQL_PASSWORD: fleetifypassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      # Baris di bawah ini yang akan menjalankan init.sql secara otomatis
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+  app:
+    build: .
+    container_name: fleetify_app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=fleetify_user
+      - DB_PASSWORD=fleetifypassword
+      - DB_NAME=fleetify_db
+    restart: always
+
+volumes:
+  db_data:
