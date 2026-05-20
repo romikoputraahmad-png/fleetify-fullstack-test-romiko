@@ -23,12 +23,8 @@ services:
       - "3000:3000"
     depends_on:
       - db
-    environment:
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_USER=fleetify_user
-      - DB_PASSWORD=fleetifypassword
-      - DB_NAME=fleetify_db
+    env_file:           
+      - .env            
     restart: always
 
 volumes:

@@ -1,9 +1,13 @@
 package repositories
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fleetify/database"
 	"fleetify/models"
+	"log"
+	"net/http"
 
 	"gorm.io/gorm"
 )
@@ -42,12 +46,19 @@ func UpdateReportStatus(reportID uint, status string, proofPhoto *string) error 
 	updates := map[string]interface{}{
 		"status": status,
 	}
-	// Jika ada foto bukti yang dikirim (untuk tahap COMPLETED)
+
 	if proofPhoto != nil {
 		updates["proof_photo"] = *proofPhoto
 	}
 
-	return database.DB.Model(&models.MaintenanceReport{}).Where("id = ?", reportID).Updates(updates).Error
+	err := database.DB.Model(&models.MaintenanceReport{}).Where("id = ?", reportID).Updates(updates).Error
+
+	// Fitur Bonus B-02: Trigger Webhook dengan Goroutine (Asynchronous)
+	if err == nil && (status == "APPROVED" || status == "COMPLETED") {
+		go sendWebhook(reportID, status) // Menambahkan kata 'go' membuatnya berjalan asinkron
+	}
+
+	return err
 }
 
 // GetAllReports mengambil semua riwayat laporan beserta data kendaraan dan pembuatnya
@@ -56,4 +67,26 @@ func GetAllReports() ([]models.MaintenanceReport, error) {
 	// GORM Preload digunakan untuk melakukan JOIN tabel secara otomatis
 	err := database.DB.Preload("Vehicle").Preload("User").Order("created_at desc").Find(&reports).Error
 	return reports, err
+}
+
+// sendWebhook mengirimkan HTTP POST secara asinkron
+func sendWebhook(reportID uint, status string) {
+	payload := map[string]interface{}{
+		"report_id": reportID,
+		"status":    status,
+		"message":   "Status laporan pemeliharaan telah berubah",
+	}
+	jsonPayload, _ := json.Marshal(payload)
+
+	// URL dummy untuk simulasi Webhook
+	webhookURL := "https://webhook.site/dummy-url-fleetify"
+
+	// Melakukan HTTP POST
+	resp, err := http.Post(webhookURL, "application/json", bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		log.Println("[-] Gagal mengirim webhook:", err)
+		return
+	}
+	defer resp.Body.Close()
+	log.Printf("[+] Webhook berhasil dikirim untuk Report ID %d dengan status %s\n", reportID, status)
 }
