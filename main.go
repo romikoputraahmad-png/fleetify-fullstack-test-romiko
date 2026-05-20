@@ -13,11 +13,7 @@ func main() {
 	database.ConnectDB()
 
 	app := fiber.New()
-
-	// Endpoint Testing
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Aplikasi Fleetify berjalan mantap!")
-	})
+	app.Static("/", "./public")
 
 	// --- SETUP ROUTES ---
 	// --- SETUP ROUTES ---

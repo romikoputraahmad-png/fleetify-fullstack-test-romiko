@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleetify - Maintenance System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">Fleetify Dashboard</span>
+            <div class="d-flex align-items-center text-white">
+                <span class="me-3">Simulasi Login (Testing):</span>
+                <select id="userRoleSelect" class="form-select form-select-sm" style="width: auto;">
+                    <option value="1">SA (budi_sa)</option>
+                    <option value="2">APPROVAL (andi_approval)</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-3">
+                <h3 class="mb-0">Riwayat Laporan Pemeliharaan</h3>
+                <button id="btnExportCSV" class="btn btn-sm btn-outline-success" onclick="exportToCSV()">Unduh CSV</button>
+            </div>
+            <button id="btnCreateReport" class="btn btn-primary">+ Buat Laporan</button>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Kendaraan (No. Polisi)</th>
+                                <th>Pembuat (SA)</th>
+                                <th>Keluhan</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyReports">
+                            <tr><td colspan="6" class="text-center">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="modal fade" id="modalCreateReport" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Buat Laporan Pemeliharaan Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateReport">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Pilih Kendaraan</label>
+                                <select class="form-select" id="vehicleId" required>
+                                    <option value="1">B 1234 ABC - Toyota Avanza</option>
+                                    <option value="2">B 5678 DEF - Honda Innova</option>
+                                    <option value="3">D 9101 GHI - Suzuki Ertiga</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Odometer (KM)</label>
+                                <input type="number" class="form-control" id="odometer" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Keluhan</label>
+                            <textarea class="form-control" id="complaint" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Foto Awal (Simulasi URL)</label>
+                            <input type="text" class="form-control" id="initialPhoto" value="https://example.com/photo1.jpg">
+                        </div>
+                        <hr>
+                        <h6>Daftar Part / Jasa (Estimasi)</h6>
+                        <div id="itemList">
+                            <div class="row mb-2 item-row">
+                                <div class="col-md-8">
+                                    <select class="form-select item-select" required>
+                                        <option value="1">Oli Mesin 10W-40 (PART)</option>
+                                        <option value="2">Filter Oli (PART)</option>
+                                        <option value="3">Kampas Rem Depan (PART)</option>
+                                        <option value="4">Jasa Ganti Oli (SERVICE)</option>
+                                        <option value="5">Jasa Servis Rem (SERVICE)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control item-qty" placeholder="Qty" value="1" min="1" required>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-secondary mb-3" onclick="addPartRow()">+ Tambah Part/Jasa</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="submitReport()">Simpan Laporan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
